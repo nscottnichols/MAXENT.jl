@@ -26,6 +26,9 @@ function parse_commandline()
             help = "Directory to save results in."
             arg_type = String
             default = "./maxentresults"
+        "--allow_f_increases"
+            help = "Allow fitness function increases to avoid local minima."
+            action = :store_true
         "qmc_data"
             help = "*.npz or *.jld file containing quantum Monte Carlo data with columns: IMAGINARY_TIME, INTERMEDIATE_SCATTERING_FUNCTION, ERROR"
             arg_type = String
@@ -94,7 +97,7 @@ function main()
                            frequency_bins,imaginary_time,
                            temperature = parsed_args["temperature"],
                            regularization_constant=parsed_args["regularization_constant"],
-                           number_of_iterations=parsed_args["number_of_iterations"])
+                           number_of_iterations=parsed_args["number_of_iterations"],allow_f_increases=parsed_args["allow_f_increases"])
     elapsed = time() - start;
     regularization_constant=parsed_args["regularization_constant"];
     filename = "$(save_dir)/maxent_results_$(regularization_constant)_$u4.jld";
