@@ -15,58 +15,32 @@ function parse_commandline()
             arg_type = Float64
             default = 0.0
         "--number_of_iterations", "-N"
-            help = "Number of generations before genetic algorithm quits."
+            help = "Number of generations before algorithm quits."
             arg_type = Int64
             default = 1000
         "--regularization_constant"
             help = "Regularization constant."
             arg_type = Float64
             default = 0.0
-        "--stop_minimum_fitness"
-            help = "Regularization constant."
-            arg_type = Float64
-            default = 1.0e-8
-        "--isf_m_type"
-            help = "Name of function to get intermediate scattering function."
-            arg_type = String
-            default = "simps"
         "--save_file_dir"
             help = "Directory to save results in."
             arg_type = String
             default = "./maxentresults"
-        "--tramanto"
-            help = "Modify intial dsf and default dsf using tramanto method."
-            action = :store_true
         "qmc_data"
             help = "*.npz or *.jld file containing quantum Monte Carlo data with columns: IMAGINARY_TIME, INTERMEDIATE_SCATTERING_FUNCTION, ERROR"
             arg_type = String
             required = true
         "initial_dsf"
-            help = "*.npz or *.jld file containing initial guess for dynamic structure factor and frequency with columns: DSF, FREQUENCY"
+            help = "*.npz or *.jld file containing initial guess for dynamic structure factor and frequency with columns: FREQUENCY, DSF"
             arg_type = String
             required = true
         "default_dsf"
-            help = "*.npz or *.jld file containing default dynamic structure factor with columns: DSF"
+            help = "*.npz or *.jld file containing default dynamic structure factor with columns: FREQUENCY,DSF"
             arg_type = String
             required = true
     end
 
     return parse_args(s)
-end
-
-function checkMoves(argname::String,s::Array{String,1},l::Array{String,1})
-    for ss in s
-        checkMoves(argname,ss,l)
-    end
-end
-
-function checkMoves(argname::String,s::String,l::Array{String,1})
-    if !(s in l)
-        print("$s is not a valid parameter for $argname. Valid parameters are: ")
-        println(l)
-        error("Failed to validate argument: $argname")
-    end
-nothing
 end
 
 function main()
@@ -80,9 +54,6 @@ function main()
         nothing
     end
     save_dir = parsed_args["save_file_dir"];
-    #FIXME
-    #checkMoves("isf_m_type",parsed_args["isf_m_type"],MAXENT.MAXENT_model_isf.functionNames)
-
 
     _ext = splitext(parsed_args["qmc_data"])[2];
     if _ext == ".npz"
@@ -92,6 +63,7 @@ function main()
     else
         throw(AssertionError("qmc_data must be *.jld or *.npz"));
     end
+
     imaginary_time = qmcdata["tau"];
     isf = qmcdata["isf"];
     isf_error = qmcdata["error"];
@@ -117,19 +89,12 @@ function main()
     end
     default_dsf = defaultdsfdata["dsf"];
 
-    if parsed_args["tramanto"]
-        dsf .*= (1 .+ exp.(-(1/parsed_args["temperature"]) .* frequency_bins))
-        default_dsf .*= (1 .+ exp.(-(1/parsed_args["temperature"]) .* frequency_bins))
-    end
-
     u4 = uuid4();
-    results = MAXENT.maxent(dsf,default_dsf,isf,isf_error,
+    results, quality_of_fit = MAXENT.maxent(dsf,default_dsf,isf,isf_error,
                            frequency_bins,imaginary_time,
                            temperature = parsed_args["temperature"],
                            regularization_constant=parsed_args["regularization_constant"],
-                           isf_m_type=parsed_args["isf_m_type"],
                            number_of_iterations=parsed_args["number_of_iterations"],
-                           stop_minimum_fitness = parsed_args["stop_minimum_fitness"]);
     elapsed = time() - start;
     regularization_constant=parsed_args["regularization_constant"];
     filename = "$(save_dir)/maxent_results_$(regularization_constant)_$u4.jld";
@@ -138,7 +103,9 @@ function main()
          "u4",u4,
          "results",results,
          "frequency",frequency_bins,
-         "elapsed_time",elapsed);
+         "elapsed_time",elapsed,
+         "quality_of_fit",quality_of_fit,
+         "regularization_constant",regularization_constant);
     filename = "$(save_dir)/maxent_params_$(regularization_constant)_$u4.jld";
     println("Saving parameters to $filename");
     save(filename,
@@ -152,7 +119,6 @@ function main()
          "number_of_iterations",parsed_args["number_of_iterations"],
          "temperature",parsed_args["temperature"],
          "regularization_constant",parsed_args["regularization_constant"],
-         "isf_m_type",parsed_args["isf_m_type"],
          "stop_minimum_fitness",parsed_args["stop_minimum_fitness"])
     nothing
 end
