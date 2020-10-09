@@ -4,8 +4,6 @@ using Statistics
 using LinearAlgebra
 using Optim
 
-include("./MAXENT_model_isf.jl")
-
 export maxent
 
 function entropy_like_term( entropy_intermediate_term::Array{Float64,1},
@@ -76,7 +74,6 @@ function maxent(dsf::Array{Float64,1},dsf_default::Array{Float64,1},isf::Array{F
                 temperature::Float64 = 1.2,
                 regularization_constant::Float64 = 0.0,
                 number_of_iterations::Int64=1000,
-                stop_minimum_fitness::Float64 = 1.0e-8,
                 allow_f_increases::Bool=false)
     moment0 = isf[1];
     beta = 1/temperature;

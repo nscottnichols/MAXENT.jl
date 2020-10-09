@@ -94,7 +94,7 @@ function main()
                            frequency_bins,imaginary_time,
                            temperature = parsed_args["temperature"],
                            regularization_constant=parsed_args["regularization_constant"],
-                           number_of_iterations=parsed_args["number_of_iterations"],
+                           number_of_iterations=parsed_args["number_of_iterations"])
     elapsed = time() - start;
     regularization_constant=parsed_args["regularization_constant"];
     filename = "$(save_dir)/maxent_results_$(regularization_constant)_$u4.jld";
