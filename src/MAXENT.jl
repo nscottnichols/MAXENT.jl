@@ -92,7 +92,7 @@ function maxent(dsf::Array{Float64,1},dsf_default::Array{Float64,1},isf::Array{F
     isf_term2 .*= dfrequency2';
     
     isf_m = Array{Float64,1}(undef,size(isf,1));
-    isf_m2 = Array{Float64}(undef,size(isf,1));
+    isf_m2 = Array{Float64,1}(undef,size(isf,1));
 
     entropy_intermediate_term = Array{Float64,1}(undef,size(dsf,1));
 
