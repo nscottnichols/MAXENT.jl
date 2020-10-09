@@ -118,8 +118,7 @@ function main()
          "default_dsf",default_dsf,
          "number_of_iterations",parsed_args["number_of_iterations"],
          "temperature",parsed_args["temperature"],
-         "regularization_constant",parsed_args["regularization_constant"],
-         "stop_minimum_fitness",parsed_args["stop_minimum_fitness"])
+         "regularization_constant",parsed_args["regularization_constant"])
     nothing
 end
 
