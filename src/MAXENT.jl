@@ -17,7 +17,7 @@ function entropy_like_term( entropy_intermediate_term::Array{Float64,1},
     #set the intermediate result
     broadcast!((x,y) -> (abs(x)*log(abs(x)/y)),entropy_intermediate_term,dsf,dsf_default)
     #return Kullback-Leibler divergence
-    dot(entropy_intermediate_term,dfrequency1) + dot(entropy_intermediate_term,dfrequency2)
+    -(dot(entropy_intermediate_term,dfrequency1) + dot(entropy_intermediate_term,dfrequency2))
 end
 
 function quality_of_fit( isf_m::Array{Float64,1},isf::Array{Float64,1},isf_error::Array{Float64,1},
@@ -73,8 +73,15 @@ function maxent(dsf::Array{Float64,1},dsf_default::Array{Float64,1},isf::Array{F
                 frequency::Array{Float64,1},imaginary_time::Array{Float64,1};
                 temperature::Float64 = 1.2,
                 regularization_constant::Float64 = 0.0,
-                number_of_iterations::Int64=1000,
-                allow_f_increases::Bool=false)
+                number_of_iterations::Int64 = 1000,
+                allow_f_increases::Bool = false,
+                number_of_blas_threads::Int64 = 0)
+    #_bts = ccall((:openblas_get_num_threads64_, Base.libblas_name), Cint, ())
+    #println("Number of BLAS threads: $(_bts)");
+    if number_of_blas_threads > 0
+        LinearAlgebra.BLAS.set_num_threads(number_of_blas_threads)
+    end
+
     moment0 = isf[1];
     beta = 1/temperature;
 

@@ -26,6 +26,10 @@ function parse_commandline()
             help = "Directory to save results in."
             arg_type = String
             default = "./maxentresults"
+        "--number_of_blas_threads"
+            help = "Number of BLAS threads to utilize if > 0 otherwise uses Julia default value."
+            arg_type = Int64
+            default = 0
         "--allow_f_increases"
             help = "Allow fitness function increases to avoid local minima."
             action = :store_true
@@ -96,8 +100,10 @@ function main()
     results, quality_of_fit = MAXENT.maxent(dsf,default_dsf,isf,isf_error,
                            frequency_bins,imaginary_time,
                            temperature = parsed_args["temperature"],
-                           regularization_constant=parsed_args["regularization_constant"],
-                           number_of_iterations=parsed_args["number_of_iterations"],allow_f_increases=parsed_args["allow_f_increases"])
+                           regularization_constant = parsed_args["regularization_constant"],
+                           number_of_iterations = parsed_args["number_of_iterations"],
+                           allow_f_increases = parsed_args["allow_f_increases"],
+                           number_of_blas_threads = parsed_args["number_of_blas_threads"])
     elapsed = time() - start;
     regularization_constant=parsed_args["regularization_constant"];
     filename = "$(save_dir)/maxent_results_$(regularization_constant)_$u4.jld";
