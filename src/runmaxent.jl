@@ -110,11 +110,12 @@ function main()
     println("Saving results to $filename");
     save(filename,
          "u4",u4,
-         "results",results,
+         "dsf",results.minimizer,
          "frequency",frequency_bins,
          "elapsed_time",elapsed,
          "quality_of_fit",quality_of_fit,
-         "regularization_constant",regularization_constant);
+         "regularization_constant",regularization_constant,
+         "iterations",results.iterations);
     filename = "$(save_dir)/maxent_params_$(regularization_constant)_$u4.jld";
     println("Saving parameters to $filename");
     save(filename,
